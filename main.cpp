@@ -1,4 +1,5 @@
 
+#include "out_to_file.h"
 #include "out_to_term.h"
 #include "string_processor.h"
 
@@ -15,6 +16,7 @@ int main(int argc, const char* argv[]) {
     StringProcessor processor(default_pack_size);
 
     [[maybe_unused]] auto out_to_term = OutToTerm();
+    [[maybe_unused]] auto out_to_file = OutToFile();
 
     for (std::string line; std::getline(std::cin, line);) {
         processor.add(line);
