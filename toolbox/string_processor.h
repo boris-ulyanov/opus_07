@@ -28,16 +28,16 @@ class StringProcessor {
     }
 
     void finalize_pack() {
+        auto& stor = Storage::Instance();
+        if (stor.size() == 0) return;
         Emitter::Instance().emit(Event::END_PACK);
-        Storage::Instance().clear();
+        stor.clear();
     }
 
     void proc_fixed_pack(const std::string& s) {
-        auto& stor = Storage::Instance();
         auto ctrl = str_to_ctrl(s);
-
         if (ctrl == Ctrl::START_PACK) {  // switch to dynamic pack
-            if (stor.size() > 0) finalize_pack();
+            finalize_pack();
             level = 1;
             return;
         }
@@ -47,6 +47,7 @@ class StringProcessor {
         }
 
         // not ctrl => command
+        auto& stor = Storage::Instance();
         stor.add(s);
 
         auto size = stor.size();
@@ -55,9 +56,7 @@ class StringProcessor {
     }
 
     void proc_dynamic_pack(const std::string& s) {
-        auto& stor = Storage::Instance();
         auto ctrl = str_to_ctrl(s);
-
         if (ctrl == Ctrl::START_PACK) {
             ++level;
             return;
@@ -70,6 +69,7 @@ class StringProcessor {
         }
 
         // not ctrl => command
+        auto& stor = Storage::Instance();
         stor.add(s);
         if (stor.size() == 1) Emitter::Instance().emit(Event::FIRST_COMMAND);
     }
@@ -83,5 +83,9 @@ class StringProcessor {
             proc_dynamic_pack(s);
         else
             proc_fixed_pack(s);
+    }
+
+    void eof() {
+        finalize_pack();
     }
 };
