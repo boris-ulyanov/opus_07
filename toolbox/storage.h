@@ -8,7 +8,8 @@
 #include <vector>
 
 class Storage {
-    std::vector<std::string> data;
+    using data_type = std::vector<std::string>;
+    data_type data;
 
     Storage() {
         // data.reserve(8);
@@ -26,10 +27,16 @@ class Storage {
     auto size() const {
         return data.size();
     }
+
     void add(const std::string& s) {
         data.push_back(s);
     }
+
     void clear() {
         data.clear();
+    }
+
+    const auto& operator[](data_type::size_type pos) const {
+        return data[pos];
     }
 };
