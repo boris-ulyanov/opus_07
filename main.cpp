@@ -21,7 +21,7 @@ int main(int argc, const char* argv[]) {
     for (std::string line; std::getline(std::cin, line);) {
         processor.add(line);
     }
-    processor.eof();
+    processor.finalize_pack();
 
     return 0;
 }

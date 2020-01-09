@@ -35,7 +35,7 @@ class OutToFile : Observer {
         Emitter::Instance().subscribe(Event::END_PACK, this);
     }
 
-    void on_event([[maybe_unused]] Event e) {
+    void on_event([[maybe_unused]] Event e) override {
         if (e == Event::FIRST_COMMAND)
             on_first_command();
         else

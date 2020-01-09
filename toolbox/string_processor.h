@@ -11,81 +11,123 @@ class StringProcessor {
     const char SYM_START_PACK = '{';
     const char SYM_FINISH_PACK = '}';
 
-    enum class Ctrl : char {
-        NONE,
-        START_PACK,
-        FINISH_PACK,
-    };
+    // не масштабируется, но что делать, если у каждого хэндлера свои параметры ???
+    class CommandHandler* fixed_handler;
+    class CommandHandler* dynamic_handler;
 
-    std::size_t fix_pack_size;
-    int level;
+    class CommandHandler* current_handler;
 
-    Ctrl str_to_ctrl(const std::string& s) const {
-        if (s.empty()) return Ctrl::NONE;
-        if (s[0] == SYM_START_PACK) return Ctrl::START_PACK;
-        if (s[0] == SYM_FINISH_PACK) return Ctrl::FINISH_PACK;
-        return Ctrl::NONE;
+   public:
+    StringProcessor(std::size_t fixed_pack_size);
+    ~StringProcessor();
+
+    void set_handler_to_fixed();
+    void set_handler_to_dynamic();
+
+    void add(const std::string&);
+    void finalize_pack();
+};
+
+class CommandHandler {
+   public:
+    virtual ~CommandHandler(){};
+    virtual void start_pack(StringProcessor*) = 0;
+    virtual void finish_pack(StringProcessor*) = 0;
+    virtual void add_command(StringProcessor*, const std::string&) = 0;
+};
+
+class FixedHandler : public CommandHandler {
+    std::size_t fixed_pack_size;
+
+   public:
+    FixedHandler(size_t _fix_pack_size) : fixed_pack_size(_fix_pack_size) {
     }
 
-    void finalize_pack() {
-        auto& stor = Storage::Instance();
-        if (stor.size() == 0) return;
-        Emitter::Instance().emit(Event::END_PACK);
-        stor.clear();
+    ~FixedHandler() {
     }
 
-    void proc_fixed_pack(const std::string& s) {
-        auto ctrl = str_to_ctrl(s);
-        if (ctrl == Ctrl::START_PACK) {  // switch to dynamic pack
-            finalize_pack();
-            level = 1;
-            return;
-        }
+    void start_pack(StringProcessor* sp) override {
+        sp->finalize_pack();
+        sp->set_handler_to_dynamic();
+    }
 
-        if (ctrl == Ctrl::FINISH_PACK) {  // ignore
-            return;
-        }
+    void finish_pack(StringProcessor*) override {
+        // ignore
+    }
 
-        // not ctrl => command
+    void add_command(StringProcessor* sp, const std::string& s) override {
         auto& stor = Storage::Instance();
         stor.add(s);
 
         auto size = stor.size();
         if (size == 1) Emitter::Instance().emit(Event::FIRST_COMMAND);
-        if (size == fix_pack_size) finalize_pack();
-    }
-
-    void proc_dynamic_pack(const std::string& s) {
-        auto ctrl = str_to_ctrl(s);
-        if (ctrl == Ctrl::START_PACK) {
-            ++level;
-            return;
-        }
-
-        if (ctrl == Ctrl::FINISH_PACK) {
-            --level;
-            if (level == 0) finalize_pack();
-            return;
-        }
-
-        // not ctrl => command
-        auto& stor = Storage::Instance();
-        stor.add(s);
-        if (stor.size() == 1) Emitter::Instance().emit(Event::FIRST_COMMAND);
-    }
-
-   public:
-    StringProcessor(std::size_t pack_size) : fix_pack_size(pack_size), level(0) {
-    }
-
-    void add(const std::string& s) {
-        if (level > 0)
-            proc_dynamic_pack(s);
-        else
-            proc_fixed_pack(s);
-    }
-
-    void eof() {
-        finalize_pack();
+        if (size == fixed_pack_size) sp->finalize_pack();
     }
 };
+
+class DynamicHandler : public CommandHandler {
+    int level;
+
+   public:
+    DynamicHandler() : level(0) {
+    }
+
+    ~DynamicHandler() {
+    }
+
+    void start_pack(StringProcessor*) override {
+        ++level;
+    }
+
+    void finish_pack(StringProcessor* sp) override {
+        if (level > 0) {
+            --level;
+            return;
+        }
+        sp->finalize_pack();
+        sp->set_handler_to_fixed();
+        return;
+    }
+
+    void add_command(StringProcessor*, const std::string& s) override {
+        auto& stor = Storage::Instance();
+        stor.add(s);
+
+        auto size = stor.size();
+        if (size == 1) Emitter::Instance().emit(Event::FIRST_COMMAND);
+    }
+};
+
+StringProcessor::StringProcessor(std::size_t fixed_pack_size) {
+    fixed_handler = new FixedHandler(fixed_pack_size);
+    dynamic_handler = new DynamicHandler();
+    current_handler = fixed_handler;
+}
+
+StringProcessor::~StringProcessor() {
+    delete fixed_handler;
+    delete dynamic_handler;
+}
+
+void StringProcessor::set_handler_to_fixed() {
+    current_handler = fixed_handler;
+}
+
+void StringProcessor::set_handler_to_dynamic() {
+    current_handler = dynamic_handler;
+}
+
+void StringProcessor::add(const std::string& s) {
+    if (!s.empty()) {
+        if (s[0] == SYM_START_PACK) return current_handler->start_pack(this);
+        if (s[0] == SYM_FINISH_PACK) return current_handler->finish_pack(this);
+    }
+    current_handler->add_command(this, s);
+}
+
+void StringProcessor::finalize_pack() {
+    auto& stor = Storage::Instance();
+    if (stor.size() == 0) return;
+    Emitter::Instance().emit(Event::END_PACK);
+    stor.clear();
+}

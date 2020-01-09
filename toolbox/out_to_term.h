@@ -15,7 +15,7 @@ class OutToTerm : Observer {
         Emitter::Instance().subscribe(Event::END_PACK, this);
     }
 
-    void on_event([[maybe_unused]] Event e) {
+    void on_event([[maybe_unused]] Event e) override {
         const auto& stor = Storage::Instance();
         const auto size = stor.size();
         std::cout << "bulk: ";
