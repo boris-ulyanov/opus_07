@@ -8,21 +8,15 @@
 #include "storage.h"
 
 class StringProcessor {
-    const char SYM_START_PACK = '{';
-    const char SYM_FINISH_PACK = '}';
-
-    // не масштабируется, но что делать, если у каждого хэндлера свои параметры ???
-    class CommandHandler* fixed_handler;
-    class CommandHandler* dynamic_handler;
-
     class CommandHandler* current_handler;
 
    public:
+    std::size_t fixed_pack_size;  // где хранить ???
+
     StringProcessor(std::size_t fixed_pack_size);
     ~StringProcessor();
 
-    void set_handler_to_fixed();
-    void set_handler_to_dynamic();
+    void set_handler(CommandHandler*);
 
     void add(const std::string&);
     void finalize_pack();
@@ -37,19 +31,11 @@ class CommandHandler {
 };
 
 class FixedHandler : public CommandHandler {
-    std::size_t fixed_pack_size;
-
    public:
-    FixedHandler(size_t _fix_pack_size) : fixed_pack_size(_fix_pack_size) {
-    }
+    FixedHandler() = default;
+    ~FixedHandler() = default;
 
-    ~FixedHandler() {
-    }
-
-    void start_pack(StringProcessor* sp) override {
-        sp->finalize_pack();
-        sp->set_handler_to_dynamic();
-    }
+    void start_pack(StringProcessor* sp) override;
 
     void finish_pack(StringProcessor*) override {
         // ignore
@@ -61,7 +47,7 @@ class FixedHandler : public CommandHandler {
 
         auto size = stor.size();
         if (size == 1) Emitter::Instance().emit(Event::FIRST_COMMAND);
-        if (size == fixed_pack_size) sp->finalize_pack();
+        if (size == sp->fixed_pack_size) sp->finalize_pack();
     }
 };
 
@@ -71,9 +57,7 @@ class DynamicHandler : public CommandHandler {
    public:
     DynamicHandler() : level(0) {
     }
-
-    ~DynamicHandler() {
-    }
+    ~DynamicHandler() = default;
 
     void start_pack(StringProcessor*) override {
         ++level;
@@ -85,7 +69,7 @@ class DynamicHandler : public CommandHandler {
             return;
         }
         sp->finalize_pack();
-        sp->set_handler_to_fixed();
+        sp->set_handler(new FixedHandler);
         return;
     }
 
@@ -98,26 +82,29 @@ class DynamicHandler : public CommandHandler {
     }
 };
 
-StringProcessor::StringProcessor(std::size_t fixed_pack_size) {
-    fixed_handler = new FixedHandler(fixed_pack_size);
-    dynamic_handler = new DynamicHandler();
-    current_handler = fixed_handler;
+void FixedHandler::start_pack(StringProcessor* sp) {
+    sp->finalize_pack();
+    sp->set_handler(new DynamicHandler());
+}
+
+StringProcessor::StringProcessor(std::size_t _fixed_pack_size) {
+    fixed_pack_size = _fixed_pack_size;
+    current_handler = new FixedHandler();
 }
 
 StringProcessor::~StringProcessor() {
-    delete fixed_handler;
-    delete dynamic_handler;
+    delete current_handler;
 }
 
-void StringProcessor::set_handler_to_fixed() {
-    current_handler = fixed_handler;
-}
-
-void StringProcessor::set_handler_to_dynamic() {
-    current_handler = dynamic_handler;
+void StringProcessor::set_handler(CommandHandler* new_handler) {
+    delete current_handler;
+    current_handler = new_handler;
 }
 
 void StringProcessor::add(const std::string& s) {
+    const char SYM_START_PACK = '{';
+    const char SYM_FINISH_PACK = '}';
+
     if (!s.empty()) {
         if (s[0] == SYM_START_PACK) return current_handler->start_pack(this);
         if (s[0] == SYM_FINISH_PACK) return current_handler->finish_pack(this);
