@@ -18,7 +18,7 @@ class OutToFile : Observer {
     }
 
     void on_end_pack() {
-        const auto filename = std::to_string(first_cmd__time) + std::string(".log");
+        const auto filename = std::string("bulk") + std::to_string(first_cmd__time) + std::string(".log");
         std::ofstream file;
         file.open(filename);
 

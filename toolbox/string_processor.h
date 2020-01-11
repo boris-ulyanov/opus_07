@@ -11,29 +11,30 @@ class StringProcessor {
     class CommandHandler* current_handler;
 
    public:
-    std::size_t fixed_pack_size;  // где хранить ???
+    std::size_t fixed_pack_size;  // где хранить (по сути - это конфигурация одного из обработчиков) ???
 
-    StringProcessor(std::size_t fixed_pack_size);
+    StringProcessor(std::size_t);
     ~StringProcessor();
 
     void set_handler(CommandHandler*);
 
-    void add(const std::string&);
+    void add_line(const std::string&);
     void finalize_pack();
+    void eof();
 };
 
 class CommandHandler {
    public:
-    virtual ~CommandHandler(){};
+    virtual ~CommandHandler() = default;
     virtual void start_pack(StringProcessor*) = 0;
     virtual void finish_pack(StringProcessor*) = 0;
     virtual void add_command(StringProcessor*, const std::string&) = 0;
+    virtual void eof(StringProcessor*) = 0;
 };
 
 class FixedHandler : public CommandHandler {
    public:
     FixedHandler() = default;
-    ~FixedHandler() = default;
 
     void start_pack(StringProcessor* sp) override;
 
@@ -49,6 +50,10 @@ class FixedHandler : public CommandHandler {
         if (size == 1) Emitter::Instance().emit(Event::FIRST_COMMAND);
         if (size == sp->fixed_pack_size) sp->finalize_pack();
     }
+
+    void eof(StringProcessor* sp) override {
+        sp->finalize_pack();
+    }
 };
 
 class DynamicHandler : public CommandHandler {
@@ -57,7 +62,6 @@ class DynamicHandler : public CommandHandler {
    public:
     DynamicHandler() : level(0) {
     }
-    ~DynamicHandler() = default;
 
     void start_pack(StringProcessor*) override {
         ++level;
@@ -69,8 +73,7 @@ class DynamicHandler : public CommandHandler {
             return;
         }
         sp->finalize_pack();
-        sp->set_handler(new FixedHandler);
-        return;
+        sp->set_handler(new FixedHandler());
     }
 
     void add_command(StringProcessor*, const std::string& s) override {
@@ -79,6 +82,10 @@ class DynamicHandler : public CommandHandler {
 
         auto size = stor.size();
         if (size == 1) Emitter::Instance().emit(Event::FIRST_COMMAND);
+    }
+
+    void eof([[maybe_unused]] StringProcessor* sp) override {
+        // ignore
     }
 };
 
@@ -101,7 +108,7 @@ void StringProcessor::set_handler(CommandHandler* new_handler) {
     current_handler = new_handler;
 }
 
-void StringProcessor::add(const std::string& s) {
+void StringProcessor::add_line(const std::string& s) {
     const char SYM_START_PACK = '{';
     const char SYM_FINISH_PACK = '}';
 
@@ -117,4 +124,8 @@ void StringProcessor::finalize_pack() {
     if (stor.size() == 0) return;
     Emitter::Instance().emit(Event::END_PACK);
     stor.clear();
+}
+
+void StringProcessor::eof() {
+    current_handler->eof(this);
 }
