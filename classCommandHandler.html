@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>matrix: CommandHandler Class Reference</title>
+<title>bulk: CommandHandler Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -17,8 +17,8 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">matrix
-   &#160;<span id="projectnumber">1.2.1</span>
+   <div id="projectname">bulk
+   &#160;<span id="projectnumber">1.2.2</span>
    </div>
   </td>
  </tr>
@@ -65,17 +65,19 @@ Inheritance diagram for CommandHandler:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa1df39697fab7062ab401931e2f13521"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCommandHandler.html#aa1df39697fab7062ab401931e2f13521">~CommandHandler</a> ()</td></tr>
-<tr class="separator:aa1df39697fab7062ab401931e2f13521"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9af4591b2535539aaaaca23a6c43944"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCommandHandler.html#ac9af4591b2535539aaaaca23a6c43944">~CommandHandler</a> ()=default</td></tr>
+<tr class="separator:ac9af4591b2535539aaaaca23a6c43944"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36af5fbe35c4dcfc3ff9c2bf49e1d2fb"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCommandHandler.html#a36af5fbe35c4dcfc3ff9c2bf49e1d2fb">start_pack</a> (<a class="el" href="classStringProcessor.html">StringProcessor</a> *)=0</td></tr>
 <tr class="separator:a36af5fbe35c4dcfc3ff9c2bf49e1d2fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37cdd20fca87dacb2050f532d11beca8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCommandHandler.html#a37cdd20fca87dacb2050f532d11beca8">finish_pack</a> (<a class="el" href="classStringProcessor.html">StringProcessor</a> *)=0</td></tr>
 <tr class="separator:a37cdd20fca87dacb2050f532d11beca8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aacd6714c47825addfca7a792c0b6daa5"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCommandHandler.html#aacd6714c47825addfca7a792c0b6daa5">add_command</a> (<a class="el" href="classStringProcessor.html">StringProcessor</a> *, const std::string &amp;)=0</td></tr>
 <tr class="separator:aacd6714c47825addfca7a792c0b6daa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4a32e5f0d85ad27dc7ce614b7fd1249"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCommandHandler.html#ae4a32e5f0d85ad27dc7ce614b7fd1249">eof</a> (<a class="el" href="classStringProcessor.html">StringProcessor</a> *)=0</td></tr>
+<tr class="separator:ae4a32e5f0d85ad27dc7ce614b7fd1249"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="aa1df39697fab7062ab401931e2f13521"></a>
+<a class="anchor" id="ac9af4591b2535539aaaaca23a6c43944"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -91,7 +93,7 @@ Public Member Functions</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">default</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -132,6 +134,32 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Implemented in <a class="el" href="classDynamicHandler.html#a06b166669e46204d14f8c883f252e1ef">DynamicHandler</a>, and <a class="el" href="classFixedHandler.html#ad2380ab8356f01c88d63a6365072cc47">FixedHandler</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ae4a32e5f0d85ad27dc7ce614b7fd1249"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void CommandHandler::eof </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classStringProcessor.html">StringProcessor</a> *&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classFixedHandler.html#ad2fc4fe9fbb89717ec8639c7239674ee">FixedHandler</a>.</p>
 
 </div>
 </div>
