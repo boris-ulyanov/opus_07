@@ -5,64 +5,44 @@
 #pragma once
 
 #include "emitter.h"
-#include "storage.h"
 
-class StringProcessor {
-    class CommandHandler* current_handler;
-
-   public:
-    std::size_t fixed_pack_size;  // где хранить (по сути - это конфигурация одного из обработчиков) ???
-
-    StringProcessor(std::size_t);
-    ~StringProcessor();
-
-    void set_handler(CommandHandler*);
-
-    void add_line(const std::string&);
-    void finalize_pack();
-    void eof();
-};
+class StringProcessor;
 
 class CommandHandler {
    public:
     virtual ~CommandHandler() = default;
     virtual void start_pack(StringProcessor*) = 0;
     virtual void finish_pack(StringProcessor*) = 0;
-    virtual void add_command(StringProcessor*, const std::string&) = 0;
+    virtual void add_command(StringProcessor*, const shared_string&) = 0;
     virtual void eof(StringProcessor*) = 0;
 };
 
-class FixedHandler : public CommandHandler {
+class StringProcessor {
+    CommandHandler* current_handler;
+
    public:
-    FixedHandler() = default;
+    std::size_t fixed_pack_size;  // где хранить (по сути - это конфигурация одного из обработчиков) ???
+    explicit StringProcessor(std::size_t);
+    ~StringProcessor();
+    void set_handler(CommandHandler*);
+    void add_line(const shared_string&);
+    void eof();
+};
 
-    void start_pack(StringProcessor* sp) override;
+class FixedHandler : public CommandHandler {
+    std::size_t ctr = 0;
 
-    void finish_pack(StringProcessor*) override {
-        // ignore
-    }
-
-    void add_command(StringProcessor* sp, const std::string& s) override {
-        auto& stor = Storage::Instance();
-        stor.add(s);
-
-        auto size = stor.size();
-        if (size == 1) Emitter::Instance().emit(Event::FIRST_COMMAND);
-        if (size == sp->fixed_pack_size) sp->finalize_pack();
-    }
-
-    void eof(StringProcessor* sp) override {
-        sp->finalize_pack();
-    }
+   public:
+    void start_pack(StringProcessor*) override;
+    void finish_pack(StringProcessor*) override;
+    void add_command(StringProcessor*, const shared_string&) override;
+    void eof(StringProcessor*) override;
 };
 
 class DynamicHandler : public CommandHandler {
-    int level;
+    int level = 0;
 
    public:
-    DynamicHandler() : level(0) {
-    }
-
     void start_pack(StringProcessor*) override {
         ++level;
     }
@@ -72,26 +52,36 @@ class DynamicHandler : public CommandHandler {
             --level;
             return;
         }
-        sp->finalize_pack();
+        Emitter::Instance().emit(Event::END_PACK);
         sp->set_handler(new FixedHandler());
     }
 
-    void add_command(StringProcessor*, const std::string& s) override {
-        auto& stor = Storage::Instance();
-        stor.add(s);
-
-        auto size = stor.size();
-        if (size == 1) Emitter::Instance().emit(Event::FIRST_COMMAND);
+    void add_command(StringProcessor*, const shared_string& s) override {
+        Emitter::Instance().emit(Event::COMMAND, s);
     }
 
-    void eof([[maybe_unused]] StringProcessor* sp) override {
-        // ignore
-    }
+    void eof(StringProcessor*) override {} // ignore
 };
 
 void FixedHandler::start_pack(StringProcessor* sp) {
-    sp->finalize_pack();
+    Emitter::Instance().emit(Event::END_PACK);
     sp->set_handler(new DynamicHandler());
+}
+
+void FixedHandler::finish_pack(StringProcessor*) {} // ignore
+
+void FixedHandler::add_command(StringProcessor* sp, const shared_string& s) {
+    Emitter::Instance().emit(Event::COMMAND, s);
+    ++ctr;
+
+    if (ctr < sp->fixed_pack_size) return;
+
+    Emitter::Instance().emit(Event::END_PACK);
+    ctr = 0;
+}
+
+void FixedHandler::eof(StringProcessor*) {
+    Emitter::Instance().emit(Event::END_PACK);
 }
 
 StringProcessor::StringProcessor(std::size_t _fixed_pack_size) {
@@ -108,22 +98,15 @@ void StringProcessor::set_handler(CommandHandler* new_handler) {
     current_handler = new_handler;
 }
 
-void StringProcessor::add_line(const std::string& s) {
+void StringProcessor::add_line(const shared_string& s) {
     const char SYM_START_PACK = '{';
     const char SYM_FINISH_PACK = '}';
 
-    if (!s.empty()) {
-        if (s[0] == SYM_START_PACK) return current_handler->start_pack(this);
-        if (s[0] == SYM_FINISH_PACK) return current_handler->finish_pack(this);
+    if (!s->empty()) {
+        if ((*s)[0] == SYM_START_PACK) return current_handler->start_pack(this);
+        if ((*s)[0] == SYM_FINISH_PACK) return current_handler->finish_pack(this);
     }
     current_handler->add_command(this, s);
-}
-
-void StringProcessor::finalize_pack() {
-    auto& stor = Storage::Instance();
-    if (stor.size() == 0) return;
-    Emitter::Instance().emit(Event::END_PACK);
-    stor.clear();
 }
 
 void StringProcessor::eof() {

@@ -19,7 +19,8 @@ int main(int argc, const char* argv[]) {
     OutToFile out_to_file;
 
     for (std::string line; std::getline(std::cin, line);) {
-        processor.add_line(line);
+        auto s = std::make_shared<std::string>(std::move(line));
+        processor.add_line(s);
     }
     processor.eof();
 

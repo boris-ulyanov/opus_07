@@ -6,18 +6,22 @@
 
 #include <assert.h>
 #include <cstdint>
+#include <memory>
 #include <vector>
+
+using shared_string = std::shared_ptr<std::string>;
 
 enum class Event : uint8_t {
     NONE = 0,
-    FIRST_COMMAND,
+    COMMAND,
     END_PACK,
-    COUNT,
+    EVENT_COUNT,
 };
 
 class Observer {
    public:
     virtual void on_event(Event e) = 0;
+    virtual void on_event(Event e, const shared_string& s) = 0;
 };
 
 class Emitter {
@@ -25,7 +29,7 @@ class Emitter {
     std::vector<one_event_observers> all_observers;
 
     Emitter() {
-        all_observers.resize(static_cast<std::size_t>(Event::COUNT));
+        all_observers.resize(static_cast<std::size_t>(Event::EVENT_COUNT));
     }
 
    public:
@@ -38,13 +42,19 @@ class Emitter {
     }
 
     void emit(const Event e) const {
-        assert(e < Event::COUNT);
+        assert(e < Event::EVENT_COUNT);
         const auto& observers = all_observers[static_cast<std::size_t>(e)];
         for (const auto& o : observers) o->on_event(e);
     }
 
+    void emit(const Event e, const shared_string& s) const {
+        assert(e < Event::EVENT_COUNT);
+        const auto& observers = all_observers[static_cast<std::size_t>(e)];
+        for (const auto& o : observers) o->on_event(e, s);
+    }
+
     void subscribe(Event e, Observer* obs) {
-        assert(e < Event::COUNT);
+        assert(e < Event::EVENT_COUNT);
         all_observers[static_cast<std::size_t>(e)].push_back(obs);
     }
 };
