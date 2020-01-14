@@ -18,7 +18,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">bulk
-   &#160;<span id="projectnumber">1.2.2</span>
+   &#160;<span id="projectnumber">1.2.3</span>
    </div>
   </td>
  </tr>
@@ -48,6 +48,7 @@
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle">
 <div class="title">emitter.h File Reference</div>  </div>
@@ -55,6 +56,7 @@
 <div class="contents">
 <div class="textblock"><code>#include &lt;assert.h&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
+<code>#include &lt;memory&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for emitter.h:</div>
@@ -71,7 +73,6 @@ This graph shows which files directly or indirectly include this file:</div>
 <area shape="rect" id="node2" href="out__to__file_8h.html" title="out_to_file.h" alt="" coords="5,80,105,107"/>
 <area shape="rect" id="node3" href="out__to__term_8h.html" title="out_to_term.h" alt="" coords="129,80,243,107"/>
 <area shape="rect" id="node4" href="string__processor_8h.html" title="string_processor.h" alt="" coords="267,80,406,107"/>
-<area shape="rect" id="node5" href="string__processor__orig_8h.html" title="string_processor_orig.h" alt="" coords="430,80,601,107"/>
 </map>
 </div>
 </div>
@@ -84,16 +85,36 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEmitter.html">Emitter</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a4b3e65ea012352ef5346d63d0755bef3"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="emitter_8h.html#a4b3e65ea012352ef5346d63d0755bef3">shared_string</a> = std::shared_ptr&lt; std::string &gt;</td></tr>
+<tr class="memdesc:a4b3e65ea012352ef5346d63d0755bef3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Event emitter.  <a href="#a4b3e65ea012352ef5346d63d0755bef3">More...</a><br /></td></tr>
+<tr class="separator:a4b3e65ea012352ef5346d63d0755bef3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
 <tr class="memitem:a8ff7e28d058520bd8f1abf62a8718452"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="emitter_8h.html#a8ff7e28d058520bd8f1abf62a8718452">Event</a> : uint8_t { <a class="el" href="emitter_8h.html#a8ff7e28d058520bd8f1abf62a8718452ab50339a10e1de285ac99d4c3990b8693">Event::NONE</a> = 0, 
-<a class="el" href="emitter_8h.html#a8ff7e28d058520bd8f1abf62a8718452a74b31d3674992c3174e154c806de4489">Event::FIRST_COMMAND</a>, 
+<a class="el" href="emitter_8h.html#a8ff7e28d058520bd8f1abf62a8718452a26097a57f572fe88a7cdf80543422cb1">Event::COMMAND</a>, 
 <a class="el" href="emitter_8h.html#a8ff7e28d058520bd8f1abf62a8718452a9c180dac38b46a757b657e9adc619d38">Event::END_PACK</a>, 
-<a class="el" href="emitter_8h.html#a8ff7e28d058520bd8f1abf62a8718452a4905ac9d6a22bdfc1ae096094ce6248d">Event::COUNT</a>
- }<tr class="memdesc:a8ff7e28d058520bd8f1abf62a8718452"><td class="mdescLeft">&#160;</td><td class="mdescRight">Event emitter.  <a href="emitter_8h.html#a8ff7e28d058520bd8f1abf62a8718452">More...</a><br /></td></tr>
-</td></tr>
+<a class="el" href="emitter_8h.html#a8ff7e28d058520bd8f1abf62a8718452aa70bbfb3904915ab925f6b6db3d69052">Event::EVENT_COUNT</a>
+ }</td></tr>
 <tr class="separator:a8ff7e28d058520bd8f1abf62a8718452"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Typedef Documentation</h2>
+<a class="anchor" id="a4b3e65ea012352ef5346d63d0755bef3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="emitter_8h.html#a4b3e65ea012352ef5346d63d0755bef3">shared_string</a> =  std::shared_ptr&lt;std::string&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Event emitter. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a class="anchor" id="a8ff7e28d058520bd8f1abf62a8718452"></a>
 <div class="memitem">
@@ -112,16 +133,14 @@ Enumerations</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Event emitter. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a class="anchor" id="a8ff7e28d058520bd8f1abf62a8718452ab50339a10e1de285ac99d4c3990b8693"></a>NONE&#160;</td><td class="fielddoc">
 </td></tr>
-<tr><td class="fieldname"><a class="anchor" id="a8ff7e28d058520bd8f1abf62a8718452a74b31d3674992c3174e154c806de4489"></a>FIRST_COMMAND&#160;</td><td class="fielddoc">
+<tr><td class="fieldname"><a class="anchor" id="a8ff7e28d058520bd8f1abf62a8718452a26097a57f572fe88a7cdf80543422cb1"></a>COMMAND&#160;</td><td class="fielddoc">
 </td></tr>
 <tr><td class="fieldname"><a class="anchor" id="a8ff7e28d058520bd8f1abf62a8718452a9c180dac38b46a757b657e9adc619d38"></a>END_PACK&#160;</td><td class="fielddoc">
 </td></tr>
-<tr><td class="fieldname"><a class="anchor" id="a8ff7e28d058520bd8f1abf62a8718452a4905ac9d6a22bdfc1ae096094ce6248d"></a>COUNT&#160;</td><td class="fielddoc">
+<tr><td class="fieldname"><a class="anchor" id="a8ff7e28d058520bd8f1abf62a8718452aa70bbfb3904915ab925f6b6db3d69052"></a>EVENT_COUNT&#160;</td><td class="fielddoc">
 </td></tr>
 </table>
 
